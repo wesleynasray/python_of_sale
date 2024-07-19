@@ -6,13 +6,19 @@ def main():
     initialize_firebase()
 
     menu_option = -1
-    offers_reference = db.reference("item-offers")
+    offers_reference = db.reference("offers")
+    events_reference = db.reference("events")
 
     while menu_option != 0:
         menu_option = request_menu_option()
 
         if menu_option == 1: 
-            list_offers(offers_reference)
+            offers = get_reference_items(offers_reference)
+            if not offers:
+                print("None")
+            else:
+                for item, price in get_reference_items(offers_reference):
+                    print(f"- {item}: {price:.2f}")
 
         elif menu_option == 2:
             prompt_add_offer(offers_reference)
@@ -20,13 +26,22 @@ def main():
         elif menu_option == 3:
             prompt_remove_offer(offers_reference)
 
-    return
+        elif menu_option == 4:
+            events = get_reference_items(events_reference)
+            if not events:
+                print("None")
+            else:
+                for event, is_active in events: 
+                    status = "ACTIVE" if is_active else "inactive"
+                    print(f"- {event}: {status}"),
 
 def request_menu_option():
     print()
     print("1 - List item offers")
     print("2 - Add item offer")
     print("3 - Remove item offer")
+    print("4 - List events")
+    print("5 - Set event availability")
     print("0 - Exit program")
     menu_option = int(input("Type desired option: "))
     print()
@@ -43,13 +58,9 @@ def prompt_add_offer(offers_reference):
     offers_reference.child(offer_name).set(offer_price)
     print(f"Added item offer for {offer_name} = $ {offer_price:.2f}")
 
-def list_offers(offers_reference):
-    offers_dictionary = offers_reference.get()
-    if offers_dictionary:
-        for item, price in offers_dictionary.items():
-            print(f"- {item}: $ {price:.2f}")
-    else:
-        print(offers_dictionary)
+def get_reference_items(database_reference):
+    items_dictionary = database_reference.get()
+    return items_dictionary.items() if items_dictionary else []
 
 
 def initialize_firebase():
