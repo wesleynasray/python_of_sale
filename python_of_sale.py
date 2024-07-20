@@ -33,7 +33,19 @@ def main():
             else:
                 for event, is_active in events: 
                     status = "ACTIVE" if is_active else "inactive"
-                    print(f"- {event}: {status}"),
+                    print(f"- {event}: {status}")
+
+        elif menu_option == 5:
+            event_name = input("Type the name of the event: ").upper()
+            
+            chosen_event_ref = events_reference.child(event_name)
+            new_availability = not chosen_event_ref.get()
+            chosen_event_ref.set(new_availability)
+            
+            status_name = "ACTIVE" if new_availability == True else "inactive"
+            print(f"Event \"{event_name}\" is now {status_name}")
+
+
 
 def request_menu_option():
     print()
@@ -41,7 +53,7 @@ def request_menu_option():
     print("2 - Add item offer")
     print("3 - Remove item offer")
     print("4 - List events")
-    print("5 - Set event availability")
+    print("5 - Toogle event availability")
     print("0 - Exit program")
     menu_option = int(input("Type desired option: "))
     print()
