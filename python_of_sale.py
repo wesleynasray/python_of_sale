@@ -58,20 +58,27 @@ def main():
             cashier_loop(event_name)
 
 def cashier_loop(event_name):
-    should_continue = True
-    while should_continue:
+    while True:
         print()
         print("=== NEW ORDER ===")
-        order_sentence = input("Enter order sentence or \"exit\" (example: \"2 kebab 1 soda 4 water\"): ")
-        
-        if order_sentence.strip().lower() == "exit":
-            should_continue = False
-            return
 
+        available_offer_items = db.reference("offers").get()
+
+        order_sentence = ""
+        while not is_valid_order_sentence(order_sentence):
+            print("Enter order sentence or \"exit\" (example: \"2 kebab 1 soda 4 water\"): ")
+            order_sentence = input()
+            
+            if order_sentence.strip().lower() == "exit":
+                return
+            
         order_dictionary = get_order_dictionary(order_sentence)
-        total_amount = 5
 
-        print_order_review(order_dictionary)
+        total_price = 0
+        for item, quantity in order_dictionary.items():
+            total_price += quantity * available_offer_items[item]
+                
+        print_order_review(order_dictionary, total_price)
 
         payment_option = request_payment_option()
 
@@ -89,11 +96,29 @@ def cashier_loop(event_name):
             "event": event_name,
             "method": payment_option,
             "client": client_name,
-            "amount": total_amount,
+            "amount": total_price,
             "items": order_dictionary
         }
         db.reference("payments").push(payment_data)
         print("Payment registered!")
+
+def is_valid_order_sentence(order_sentence):
+    if not order_sentence:
+        return False
+
+    order_dictionary = get_order_dictionary(order_sentence)
+
+    if not order_dictionary:
+        return False    
+
+    available_offers = db.reference("offers").get().keys()
+
+    for item, quantity in order_dictionary.items():
+        if item not in available_offers:
+            print(f"Invalid item \"{item}\" in order sentence, please try again.")
+            return False
+    
+    return True
 
 def request_payment_confirmation():
     print("Waiting payment operation ", end="", flush="True")
@@ -118,11 +143,12 @@ def request_payment_option():
     print()
     return input("Type desired payment option: ")
 
-def print_order_review(order_dictionary):
+def print_order_review(order_dictionary, total_price):
     print()
     print("ORDER REVIEW:")
     for name, quantity in order_dictionary.items():
         print(f"- {quantity} x {name}")
+    print(f"TOTAL: $ {total_price:.2f}")
 
 def get_order_dictionary(order_sentence):
     order_parts = order_sentence.split()
