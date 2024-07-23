@@ -33,8 +33,11 @@ def main():
             event_name = input("Type event name: ")
             cashier_loop(event_name)
 
+        time.sleep(2)
+
 def cashier_loop(event_name: str):
     while True:
+        print()
         print()
         print(f"event: {event_name}")
         print("=== NEW ORDER ===")
@@ -70,19 +73,31 @@ def initialize_firebase():
 
 def prompt_menu_option():
     print()
+    print("===== PYTHON OF SALE - MAIN MENU =====")
+    print()
+    print("> Offers")
     print("1 - List item offers")
     print("2 - Add item offer")
     print("3 - Remove item offer")
+    print()
+    print("> Events")
     print("4 - List events")
     print("5 - Toogle event availability")
+    print()
+    print("> Cashier")
     print("6 - Start cashier routine")
+    print()
+    print("> Exit")
     print("0 - Exit program")
     print()
     menu_option = int(input("Type desired option: "))
-    print()
     return menu_option
 
 def print_offers_list(offers_reference: db.Reference):
+    print()
+    print("== OFFERS LIST:")
+    print()
+
     offer_items = get_items_from_reference(offers_reference)
     if not offer_items:
         print("None")
@@ -98,14 +113,22 @@ def prompt_add_offer(offers_reference: db.Reference):
     offer_name = input("Name of the new item: ")
     offer_price = float(input("Price of the new item: "))
     offers_reference.child(offer_name).set(offer_price)
+
+    print()
     print(f"Added item offer for {offer_name} = $ {offer_price:.2f}")
 
 def prompt_remove_offer(offers_reference:db.Reference):
     item_to_delete = input("Name of item offer to remove: ")
     offers_reference.child(item_to_delete).delete()
+
+    print()
     print(f"{item_to_delete} offer deleted")
 
 def print_events_list(events_reference: db.Reference):
+    print()
+    print("== EVENTS LIST:")
+    print()
+    
     event_items = get_items_from_reference(events_reference)
     if not event_items:
         print("None")
@@ -122,6 +145,8 @@ def toggle_event_availability(events_reference: db.Reference):
     chosen_event_ref.set(new_availability)
             
     status_name = "ACTIVE" if new_availability == True else "inactive"
+
+    print()
     print(f"Event \"{event_name}\" is now {status_name}")
 
 def prompt_order_sentence():
@@ -168,6 +193,7 @@ def get_order_dictionary(order_sentence: str):
         order_dictionary[name] += quantity
 
         part_index += 2
+
     return order_dictionary
 
 def get_order_total_price(order_dictionary: dict, available_offers_dictionary: dict):
@@ -178,7 +204,7 @@ def get_order_total_price(order_dictionary: dict, available_offers_dictionary: d
 
 def print_order_review(order_dictionary: dict, total_price: float):
     print()
-    print("ORDER REVIEW:")
+    print("== ORDER REVIEW:")
     for name, quantity in order_dictionary.items():
         print(f"- {quantity} x {name}")
     print(f"TOTAL: $ {total_price:.2f}")
@@ -217,6 +243,8 @@ def register_payment(event_name, order_dictionary, total_price, payment_option, 
             "items": order_dictionary
         }
     db.reference("payments").push(payment_data)
+
+    print()
     print("Payment registered!")
 
 if __name__ == "__main__":
