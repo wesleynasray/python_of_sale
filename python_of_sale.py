@@ -1,3 +1,4 @@
+import os
 import time
 import firebase_admin
 from datetime import datetime
@@ -30,10 +31,39 @@ def main():
             toggle_event_availability(events_reference)
 
         elif menu_option == 6:
-            event_name = input("Type event name: ")
+            event_name = prompt_event_name()
             cashier_loop(event_name)
 
+        elif menu_option == 7:
+            continue
+
+        elif menu_option == 8:
+            event_name = prompt_event_name()
+            open_event_sales_report(event_name)
+
         time.sleep(2)
+
+def open_event_sales_report(event_name: str):
+    event_payments_query = db.reference("payments").order_by_child("event").equal_to(event_name)
+    event_payments = event_payments_query.get()
+    
+    date_string = f"{datetime.now():%Y-%m-%d_%H-%M-%S}"
+    filename = f"sales_report_{event_name}_{date_string}.csv"
+    with open(f"{filename}", "w") as file:
+        if len(event_payments) > 0:
+            first_payment = next(iter(event_payments.values())) 
+            headers = first_payment.keys()
+            line = ";".join(headers) + "\n"
+            file.write(line)
+
+        for payment in event_payments.values():
+            line = ";".join(map(str, payment.values())) + "\n"
+            file.write(line)
+    
+        os.open(file.name, os.O_RDWR)
+
+def prompt_event_name():
+    return input("Type event name: ")
 
 def cashier_loop(event_name: str):
     while True:
@@ -86,6 +116,10 @@ def prompt_menu_option():
     print()
     print("> Cashier")
     print("6 - Start cashier routine")
+    print()
+    print("> Reports")
+    print("7 - Show event income")
+    print("8 - Download event sales report")
     print()
     print("> Exit")
     print("0 - Exit program")
