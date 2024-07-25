@@ -42,6 +42,9 @@ def main():
             event_name = prompt_event_name()
             open_event_sales_report(event_name)
 
+        else:
+            continue
+
         time.sleep(2)
 
 def cashier_loop(event_name: str):
@@ -116,7 +119,7 @@ def print_offers_list(offers_reference: db.Reference):
         print("None")
     else:
         for item, price in get_items_from_reference(offers_reference):
-            print(f"- {item}: {price:.2f}")
+            print(f"- {item}: $ {price:.2f}")
 
 def get_items_from_reference(database_reference: db.Reference):
     items_dictionary = database_reference.get()
@@ -228,6 +231,7 @@ def is_valid_order_sentence(order_sentence):
 
     for item, quantity in order_dictionary.items():
         if item not in available_offers:
+            print()
             print(f"Invalid item \"{item}\" in order sentence, please try again.")
             return False
     
