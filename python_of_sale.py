@@ -49,18 +49,20 @@ def open_event_sales_report(event_name: str):
     
     date_string = f"{datetime.now():%Y-%m-%d_%H-%M-%S}"
     filename = f"sales_report_{event_name}_{date_string}.csv"
-    with open(f"{filename}", "w") as file:
+    filepath = f"reports/{filename}"
+    with open(filepath, "w") as file:
         if len(event_payments) > 0:
             first_payment = next(iter(event_payments.values())) 
             headers = first_payment.keys()
-            line = ";".join(headers) + "\n"
+            line = ",".join(headers) + "\n"
             file.write(line)
 
         for payment in event_payments.values():
-            line = ";".join(map(str, payment.values())) + "\n"
+            line = ",".join(map(str, payment.values())) + "\n"
+            line = line.replace(",{", ",\"{").replace("},", "}\",")
             file.write(line)
     
-        os.open(file.name, os.O_RDWR)
+        os.startfile(os.path.abspath(filepath))
 
 def prompt_event_name():
     return input("Type event name: ")
