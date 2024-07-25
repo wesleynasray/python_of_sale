@@ -35,37 +35,14 @@ def main():
             cashier_loop(event_name)
 
         elif menu_option == 7:
-            continue
+            event_name = prompt_event_name()
+            print_event_income(event_name)
 
         elif menu_option == 8:
             event_name = prompt_event_name()
             open_event_sales_report(event_name)
 
         time.sleep(2)
-
-def open_event_sales_report(event_name: str):
-    event_payments_query = db.reference("payments").order_by_child("event").equal_to(event_name)
-    event_payments = event_payments_query.get()
-    
-    date_string = f"{datetime.now():%Y-%m-%d_%H-%M-%S}"
-    filename = f"sales_report_{event_name}_{date_string}.csv"
-    filepath = f"reports/{filename}"
-    with open(filepath, "w") as file:
-        if len(event_payments) > 0:
-            first_payment = next(iter(event_payments.values())) 
-            headers = first_payment.keys()
-            line = ",".join(headers) + "\n"
-            file.write(line)
-
-        for payment in event_payments.values():
-            line = ",".join(map(str, payment.values())) + "\n"
-            line = line.replace(",{", ",\"{").replace("},", "}\",")
-            file.write(line)
-    
-        os.startfile(os.path.abspath(filepath))
-
-def prompt_event_name():
-    return input("Type event name: ")
 
 def cashier_loop(event_name: str):
     while True:
@@ -174,7 +151,7 @@ def print_events_list(events_reference: db.Reference):
             print(f"- {event}: {status}")
 
 def toggle_event_availability(events_reference: db.Reference):
-    event_name = input("Type the name of the event: ").upper()
+    event_name = prompt_event_name("Type the name of the event: ")
             
     chosen_event_ref = events_reference.child(event_name)
     new_availability = not chosen_event_ref.get()
@@ -184,6 +161,48 @@ def toggle_event_availability(events_reference: db.Reference):
 
     print()
     print(f"Event \"{event_name}\" is now {status_name}")
+
+def prompt_event_name(custom_prompt = ""):
+    prompt = "Type event name: " if custom_prompt == "" else custom_prompt
+    return input(prompt).strip().upper()
+
+def print_event_income(event_name):
+    event_payments = get_event_payments(event_name)
+    
+    income = 0
+    for key, value in event_payments.items():
+        amount = float(value["amount"])
+        income += amount
+
+    print()
+    print(f">>> $ {income:,.2f} of income currently received in event {event_name}")
+
+def open_event_sales_report(event_name: str):
+    event_payments = get_event_payments(event_name)
+    
+    date_string = f"{datetime.now():%Y-%m-%d_%H-%M-%S}"
+    filename = f"sales_report_{event_name}_{date_string}.csv"
+    filepath = f"reports/{filename}"
+    with open(filepath, "w") as file:
+        if len(event_payments) > 0:
+            first_payment = next(iter(event_payments.values())) 
+            headers = first_payment.keys()
+            line = ",".join(headers) + "\n"
+            file.write(line)
+
+        for payment in event_payments.values():
+            values = list(map(str, payment.values()))
+            values[0] = f"$ {float(values[0]):,.2f}"
+
+            line = ",".join(values) + "\n"
+            line = line.replace(",{", ",\"{").replace("},", "}\",")
+            file.write(line)
+    
+        os.startfile(os.path.abspath(filepath))
+
+def get_event_payments(event_name):
+    event_payments_query = db.reference("payments").order_by_child("event").equal_to(event_name)
+    return event_payments_query.get()
 
 def prompt_order_sentence():
     order_sentence = ""
