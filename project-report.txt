@@ -24,6 +24,24 @@ doing any of the following:
 =============Example====================
 
 
+            Time Spent
+   Date       (hours)   Description of Work
+----------  ----------  -------------------------
+2024-07-16       1      Set up a Firebase project and the Realtime Database, set up git and github directory, wrote function to initialize firebase_admin and post test data
+2024-07-16       1      Wrote functions to print main menu and to prompt posting or deletion of item offers
+2024-07-19      .5      Wrote functions to list and toggle availability of events
+2024-07-19       2      Wrote function for cashier loop, including prompt of order_sentence and basic parsing of it
+2024-07-19       1      Wrote function to post payment data to Realtime Database and call it at the end of cashier loop
+2024-07-20       1      Wrote validations for order_sentence 
+2024-07-22       1      Refactored existing functions and improved prompt messages presentation
+2024-07-23     1.5      Wrote function to dowload sales report of an event and added respective option to main menu
+2024-07-24       1      Improved sales report function, so the downloaded file automatically opens using operational system's default program for .csv files
+2024-07-24       1      Wrote function to show current total income of an event
+2024-07-24       1      Wrote test functions for get_order_dictionary and get_order_total_price; also improved program code to pass all testing cases
+2024-07-24       1      Manually testing overall program experience and apply minor improvements
+
+
+
 
 2. In Canvas, submit this completed text file, your Python program, your
 Python test file, and any project data files such as .txt and .csv files and
