@@ -235,26 +235,45 @@ def is_valid_order_sentence(order_sentence):
 
 def get_order_dictionary(order_sentence: str):
     order_parts = order_sentence.split()
+
+    if not order_parts:
+        return {}
+    
+    if len(order_parts) % 2 != 0:
+        return {}
+
     order_dictionary = {}
     part_index = 0
 
-    while part_index < len(order_parts) - 1:
-        name = order_parts[part_index + 1]
-        quantity = int(order_parts[part_index])
+    try:
+        while part_index < len(order_parts) - 1:
+            name = order_parts[part_index + 1]
+            if name.isnumeric():
+                raise ValueError(f"Order item name should not be numeric (received {name})")
 
-        if name not in order_dictionary:
-            order_dictionary[name] = 0
+            quantity = int(order_parts[part_index])
 
-        order_dictionary[name] += quantity
+            if name not in order_dictionary:
+                order_dictionary[name] = 0
 
-        part_index += 2
+            order_dictionary[name] += quantity
+
+            part_index += 2
+
+    except ValueError:
+        return {}
 
     return order_dictionary
 
 def get_order_total_price(order_dictionary: dict, available_offers_dictionary: dict):
     total_price = 0
+    
     for item, quantity in order_dictionary.items():
+        if (item not in available_offers_dictionary):
+            raise ValueError(f"\"{item}\" is not included in the provided available offers dictionary")
+        
         total_price += quantity * available_offers_dictionary[item]
+
     return total_price
 
 def print_order_review(order_dictionary: dict, total_price: float):
