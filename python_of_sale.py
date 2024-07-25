@@ -62,7 +62,7 @@ def cashier_loop(event_name: str):
         print_order_review(order_dictionary, total_price)
 
         payment_option = prompt_payment_option()
-        client_name = input("Type client's name: ").title()
+        client_name = input("Type client's name: ").strip().title()
 
         payment_confirmation = prompt_payment_confirmation()
         if payment_confirmation == "cancel":
@@ -164,7 +164,7 @@ def toggle_event_availability(events_reference: db.Reference):
 
 def prompt_event_name(custom_prompt = ""):
     prompt = "Type event name: " if custom_prompt == "" else custom_prompt
-    return input(prompt).strip().upper()
+    return input(prompt).strip().upper().replace(" ", "")
 
 def print_event_income(event_name):
     event_payments = get_event_payments(event_name)
